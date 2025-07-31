@@ -1,0 +1,48 @@
+When we first connect we have all these infos :
+
+
+  GCC stack protector support:            Enabled
+  Strict user copy checks:                Disabled
+  Restrict /dev/mem access:               Enabled
+  Restrict /dev/kmem access:              Enabled
+  grsecurity / PaX: No GRKERNSEC
+  Kernel Heap Hardening: No KERNHEAP
+ System-wide ASLR (kernel.randomize_va_space): Off (Setting: 0)
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
+No RELRO        No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   /home/user/level0/level0
+
+Propriete systeme:
+
+GCC stack protector support: Enabled	Le compilateur supporte la protection contre les débordements de pile (stack canaries), mais ce n’est pas forcément activé pour ton binaire.
+Strict user copy checks: Disabled	Moins important ici, c’est une protection contre des bugs en copie de mémoire noyau → utilisateur.
+Restrict /dev/mem access: Enabled	Accès limité à la mémoire physique via /dev/mem (sécurité renforcée).
+Restrict /dev/kmem access: Enabled	Pareil pour /dev/kmem (vieilles interfaces mémoire noyau).
+grsecurity / PaX: No GRKERNSEC	Aucune protection PaX/Grsecurity active sur le noyau.
+Kernel Heap Hardening: No KERNHEAP	Pas de protection spéciale sur le tas du noyau.
+ASLR (Address Space Layout Randomization): Off	La mémoire n’est pas randomisée, donc les adresses sont toujours les mêmes → très utile !
+
+
+
+level0 :
+
+Binary checksec:
+RELRO: No RELRO	Aucune protection RELRO → tu peux réécrire certaines parties de la table GOT.
+STACK CANARY: No canary found	Pas de stack canary → tu peux faire des stack buffer overflows sans que ça crashe automatiquement.
+NX: NX enabled	La mémoire non exécutable est activée → tu ne peux pas exécuter du shellcode sur la stack. Tu devras faire un ret2libc plus tard.
+PIE: No PIE	Le binaire n’est pas position-independant → les adresses dans le binaire sont toujours les mêmes. C’est très bien pour toi ! 
+
+
+we have a binary -> ghidra.
+
+We look at the pseudo code, we need to enter the if condition : 0x1a7 is the hexa for 423
+we execute the binary with this param:
+it enters a shell
+with id we see that we are already level1
+
+
+cat /home/user/level1/.pass
+
+password for level1: 1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
+
+level1:
+
