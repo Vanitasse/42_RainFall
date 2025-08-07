@@ -279,6 +279,20 @@ oh but it just segfault instantly if no parameters where sent to the binary, so 
 
 pass for level 7 : f73dcb7a06f60e3ccc608990b0a046359d42a1a0489ffeefd0d9cb2d7c9cb82d
 
+level7:
+
+we have a main function which malloc av[1] and av[2], then copy it using strcpy.
+
+strcpy is unprotected, cause it will just continue till the end of the string.
+then it fgets the flag and saves it into a global variable c, but does nothing with it.
+
+so we could overwrite the destination address of the second strcpy by overflowing the first strcpy call ? to replace the puts got address to call m instead.
+
+
+
+
+
+
 
 
 
