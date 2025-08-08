@@ -326,6 +326,15 @@ pass for level8 : 5684af5cb4c8679958be4abe6373147ab52d95768e047820bf382e44fa8d8f
 
 level8 :
 
+in ghidra theres a long long main. it just keeps doing conditional jumps to check values,
+seems like theres 4 commands, auth{whitespace}, service, login and reset.
+
+at the end the last if it checks the value of auth, and if its not 0 it launches a shell so we have to do a combination of these 3 commands (last one login i guess ?) to launch the shell.
+
+what does auth do ?
+
+
+
 
 
 
