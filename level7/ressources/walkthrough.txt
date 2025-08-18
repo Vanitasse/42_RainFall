@@ -1,0 +1,18 @@
+level00:
+
+id
+pwd
+ls
+
+Nothing to look at with ls.
+we should find some files that's been created by the flag00 user
+
+find / -user flag00 2>/dev/null
+2>/dev/null redirects errors into null, so we can see better.
+we have 2 files, which contains the same string.
+we try to login to flag00 but doesnt work.
+it might be a specific code, check on dcode.fr
+its a ceaser code
+password : nottoohardhere
+
+then getflag : x24ti5gi3x0ol2eh4esiuxias
