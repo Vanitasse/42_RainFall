@@ -1,17 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
 
-void run(void)
-
+int run(void)
 {
-  fwrite("Good... Wait what?\n",1,0x13,stdout);
+  fwrite("Good... Wait what?\n", 19, 1, stdout);
   system("/bin/sh");
   return;
 }
 
-void main(void)
-
+int main(void)
 {
-  char local_50 [76];
+  char buffer[64];
   
-  gets(local_50);
+  gets(buffer);
   return;
 }

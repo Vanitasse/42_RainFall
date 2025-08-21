@@ -1,25 +1,25 @@
-void p(void)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+char *p(void)
 {
-  uint unaff_retaddr;
-  char local_50 [76];
+  void *return_addr;
+  char buffer[64];
   
   fflush(stdout);
-  gets(local_50);
-  if ((unaff_retaddr & 0xb0000000) == 0xb0000000) {
-    printf("(%p)\n",unaff_retaddr);
-                    /* WARNING: Subroutine does not return */
+  gets(buffer);
+  return_addr = __builtin_return_address (0);
+  if (((unsigned int)return_addr & 0xb0000000) == 0xb0000000) {
+    printf("(%p)\n",return_addr);
     _exit(1);
   }
-  puts(local_50);
-  strdup(local_50);
-  return;
+  puts(buffer);
+  return (strdup(buffer));
 }
 
-
-void main(void)
-
+int main(void)
 {
   p();
-  return;
+  return 0;
 }

@@ -1,33 +1,32 @@
-void m(void *param_1,int param_2,char *param_3,int param_4,int param_5)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
+char c[68];
+
+void m(void)
 {
-  time_t tVar1;
-  
-  tVar1 = time((time_t *)0x0);
-  printf("%s - %d\n",c,tVar1);
-  return;
+  printf("%s - %d\n", c, (int)time(0));
 }
 
-undefined4 main(undefined4 param_1,int param_2)
-
+int main(int ac, char** av)
 {
-  undefined4 *puVar1;
-  void *pvVar2;
-  undefined4 *puVar3;
-  FILE *__stream;
+  int *a;
+  int *b;
   
-  puVar1 = (undefined4 *)malloc(8);
-  *puVar1 = 1;
-  pvVar2 = malloc(8);
-  puVar1[1] = pvVar2;
-  puVar3 = (undefined4 *)malloc(8);
-  *puVar3 = 2;
-  pvVar2 = malloc(8);
-  puVar3[1] = pvVar2;
-  strcpy((char *)puVar1[1],*(char **)(param_2 + 4));
-  strcpy((char *)puVar3[1],*(char **)(param_2 + 8));
-  __stream = fopen("/home/user/level8/.pass","r");
-  fgets(c,0x44,__stream);
+  a = malloc(8);
+  a[0] = 1;
+  a[1] = (int)malloc(8);
+
+  b = malloc(8);
+  b[0] = 2;
+  b[1] = (int)malloc(8);
+
+  strcpy((char *)a[1], av[1]);
+  strcpy((char *)b[1], av[2]);
+
+  fget(c, 68, fopen("/home/user/level8/.pass", "r"));
   puts("~~");
   return 0;
 }

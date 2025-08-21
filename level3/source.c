@@ -1,19 +1,23 @@
-void v(void)
+#include <stdio.h>
+#include <stdlib.h>
 
+int m = 0;
+
+int v(void)
 {
-  char local_20c [520];
+  char buffer[512];
   
-  fgets(local_20c,0x200,stdin);
-  printf(local_20c);
-  if (m == 0x40) {
-    fwrite("Wait what?!\n",1,0xc,stdout);
+  fgets(buffer, 512, stdin);
+  printf(buffer);
+  if (m == 64) {
+    fwrite("Wait what?!\n", 12, 1, stdout);
     system("/bin/sh");
   }
-  return;
+  return 0;
+}
 
-void main(void)
-
+int main(void)
 {
   v();
-  return;
+  return 0;
 }

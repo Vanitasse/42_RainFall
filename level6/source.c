@@ -1,27 +1,28 @@
-void n(void)
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+typedef void(*func_ptr)(void);
+
+void n(void)
 {
   system("/bin/cat /home/user/level7/.pass");
-  return;
 }
 
-void m(void *param_1,int param_2,char *param_3,int param_4,int param_5)
-
+void m(void)
 {
   puts("Nope");
-  return;
 }
 
-void main(undefined4 param_1,int param_2)
-
+int main(int ac, char** av)
 {
-  char *__dest;
-  undefined4 *puVar1;
+  char *arg;
+  func_ptr *func;
   
-  __dest = (char *)malloc(0x40);
-  puVar1 = (undefined4 *)malloc(4);
-  *puVar1 = m;
-  strcpy(__dest,*(char **)(param_2 + 4));
-  (*(code *)*puVar1)();
-  return;
+  arg = malloc(64);
+  func = malloc(4);
+  *func = (void *)m;
+  strcpy(arg, av[1]);
+  (**func)();
+  return 0;
 }

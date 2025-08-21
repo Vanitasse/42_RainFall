@@ -1,24 +1,30 @@
-undefined4 main(undefined4 param_1,int param_2)
+#include <stdio.h>
+#include <unistd.h>
+#include <strings.h>
+#include <sys/types.h>
+#define _GNU_SOURCE
+
+
+int main(int ac,char **av)
 
 {
-  int iVar1;
-  char *local_20;
-  undefined4 local_1c;
-  __uid_t local_18;
-  __gid_t local_14;
+  int nb;
+  char *cmd_args[2];
+  __uid_t uid;
+  __gid_t gid;
   
-  iVar1 = atoi(*(char **)(param_2 + 4));
-  if (iVar1 == 0x1a7) {
-    local_20 = strdup("/bin/sh");
-    local_1c = 0;
-    local_14 = getegid();
-    local_18 = geteuid();
-    setresgid(local_14,local_14,local_14);
-    setresuid(local_18,local_18,local_18);
-    execv("/bin/sh",&local_20);
+  nb = atoi(av[1]);
+  if (nb == 423) {
+    cmd_args[0] = strdup("/bin/sh");
+    cmd_args[1] = NULL;
+    gid = getegid();
+    uid = geteuid();
+    setresgid(gid,gid,gid);
+    setresuid(uid,uid,uid);
+    execv("/bin/sh", cmd_args);
   }
   else {
-    fwrite("No !\n",1,5,(FILE *)stderr);
+    fwrite("No !\n", 5, 1, stderr);
   }
   return 0;
 }

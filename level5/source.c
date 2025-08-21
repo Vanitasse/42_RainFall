@@ -1,25 +1,24 @@
-void o(void)
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
+void o(void)
 {
   system("/bin/sh");
-                    /* WARNING: Subroutine does not return */
   _exit(1);
 }
 
 void n(void)
-
 {
-  char local_20c [520];
+  char buffer[512];
   
-  fgets(local_20c,0x200,stdin);
-  printf(local_20c);
-                    /* WARNING: Subroutine does not return */
+  fgets(buffer, 512, stdin);
+  printf(buffer);
   exit(1);
 }
 
-void main(void)
-
+int main(void)
 {
   n();
-  return;
+  return 0;
 }
