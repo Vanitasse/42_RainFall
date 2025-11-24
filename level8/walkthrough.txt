@@ -1,18 +1,30 @@
-level00:
+level8:
 
-id
-pwd
-ls
+in ghidra theres a long long main. it just keeps doing conditional jumps to check values,
+seems like theres 4 commands, auth{whitespace}, service, login and reset.
 
-Nothing to look at with ls.
-we should find some files that's been created by the flag00 user
+at the end the last if checks the value of auth, and if its not 0 it launches a shell so we have to do a combination of these 3 commands (last one login i guess ?) to launch the shell.
 
-find / -user flag00 2>/dev/null
-2>/dev/null redirects errors into null, so we can see better.
-we have 2 files, which contains the same string.
-we try to login to flag00 but doesnt work.
-it might be a specific code, check on dcode.fr
-its a ceaser code
-password : nottoohardhere
+what does these commands do ?
 
-then getflag : x24ti5gi3x0ol2eh4esiuxias
+auth calls malloc() and strcpy() and copies datas following auth into the global auth.
+
+service calls strdup() and copies  datas following service into the global service.
+
+reset calls free() and fress the global auth.
+
+login calls system() if auth(32) is not 0, or fwrite() otherwise. then displays addresses of the globals auth and service.
+
+by doing one auth and one service, we can see that the address of service is 16 bytes after the adress of auth. this is because malloc puts each pointer next to the other one with some padding.
+
+
+so if its separated by 16 bytes we can just add another 16 to service to be at 32 like so :
+auth 
+service0123456789abcdef
+login
+whoami
+level9
+
+or, do one auth, then two service to get to 32 bytes.
+
+pass for level9 : c542e581c5ba5162a85f767996e3247ed619ef6c6f7b76a59435545dc6259f8a

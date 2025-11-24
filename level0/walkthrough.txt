@@ -1,18 +1,13 @@
-level00:
+level0:
 
-id
-pwd
-ls
+we have a binary -> ghidra.
 
-Nothing to look at with ls.
-we should find some files that's been created by the flag00 user
+We look at the pseudo code, we need to enter the if condition : 0x1a7 is the hexa for 423
+we execute the binary with this param:
+it enters a shell
+with id we see that we are already level1
+so we can access directly the password of level1 :
 
-find / -user flag00 2>/dev/null
-2>/dev/null redirects errors into null, so we can see better.
-we have 2 files, which contains the same string.
-we try to login to flag00 but doesnt work.
-it might be a specific code, check on dcode.fr
-its a ceaser code
-password : nottoohardhere
+cat /home/user/level1/.pass
 
-then getflag : x24ti5gi3x0ol2eh4esiuxias
+password for level1: 1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a

