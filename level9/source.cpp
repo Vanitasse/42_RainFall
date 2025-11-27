@@ -1,56 +1,43 @@
-/* N::N(int) */
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
 
-void __thiscall N::N(N *this,int param_1)
+class N {
+public:
+    int value = 0;
+    char annotation[100];
 
+    N(int v) {
+        this->value = v;
+    }
+
+    int operator+(N &other) {
+        return this->value + other.value;
+    }
+
+    int operator-(N &other) {
+        return this->value - other.value;
+    }
+
+    void setAnnotation(const char *str) {
+        size_t len = strlen(str);
+        memcpy(this->annotation, str, len);
+    }
+};
+
+
+int main(int argc, char **argv)
 {
-  *(undefined ***)this = &PTR_operator+_08048848;
-  *(int *)(this + 0x68) = param_1;
-  return;
-}
+    if (argc < 2) {
+        exit(1);
+    }
+    N *a = new N(5);
+    N *b = new N(6);
 
-/* N::TEMPNAMEPLACEHOLDERVALUE(N&) */
-
-int __thiscall N::operator+(N *this,N *param_1)
-
-{
-  return *(int *)(param_1 + 0x68) + *(int *)(this + 0x68);
-}
-
-/* N::TEMPNAMEPLACEHOLDERVALUE(N&) */
-
-int __thiscall N::operator-(N *this,N *param_1)
-
-{
-  return *(int *)(this + 0x68) - *(int *)(param_1 + 0x68);
-}
-
-/* N::setAnnotation(char*) */
-
-void __thiscall N::setAnnotation(N *this,char *param_1)
-
-{
-  size_t __n;
-  
-  __n = strlen(param_1);
-  memcpy(this + 4,param_1,__n);
-  return;
-}
-
-void main(int param_1,int param_2)
-
-{
-  N *this;
-  N *this_00;
-  
-  if (param_1 < 2) {
-                    /* WARNING: Subroutine does not return */
-    _exit(1);
-  }
-  this = (N *)operator.new(0x6c);
-  N::N(this,5);
-  this_00 = (N *)operator.new(0x6c);
-  N::N(this_00,6);
-  N::setAnnotation(this,*(char **)(param_2 + 4));
-  (*(code *)**(undefined4 **)this_00)(this_00,this);
-  return;
+    a->setAnnotation(argv[1]);
+    int result = (*reinterpret_cast<int (**)(N*, N*)>(*reinterpret_cast<void **>(b)))(b, a);
+    std::cout << "Result = " << result << std::endl;
+    delete a;
+    delete b;
+    return 0;
 }

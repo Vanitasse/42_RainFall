@@ -28,7 +28,8 @@ void pp(char *param_1)
   uVar2 = 0xffffffff;
   pcVar3 = param_1;
   do {
-    if (uVar2 == 0) break;
+    if (uVar2 == 0)
+      break;
     uVar2 = uVar2 - 1;
     cVar1 = *pcVar3;
     pcVar3 = pcVar3 + (uint)bVar4 * -2 + 1;
@@ -39,7 +40,7 @@ void pp(char *param_1)
   return;
 }
 
-undefined4 main(void)
+int main(void)
 {
   char local_3a [54];
   

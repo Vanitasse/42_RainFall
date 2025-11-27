@@ -26,7 +26,7 @@ int main(int ac, char** av)
   strcpy((char *)a[1], av[1]);
   strcpy((char *)b[1], av[2]);
 
-  fget(c, 68, fopen("/home/user/level8/.pass", "r"));
+  fgets(c, 68, fopen("/home/user/level8/.pass", "r"));
   puts("~~");
   return 0;
 }
