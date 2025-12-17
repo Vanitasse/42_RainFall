@@ -1,8 +1,6 @@
 Rainfall is an iso challenge slightly more complex than Snow Crash. You will have to dive deep into reverse engineering, learn to reconstruct a code, and understand it to detect faults. Will you reach the last level?  
 Security challenges focused on binaries: buffer overflows, printf insertions, shellcode injections and binary analysis.
 
-<br/>
-
 ## General instructions
 To make this project, you will have to use a VMV(64 bits). Once you have started your machine with the ISO provided with this subject, if your configuration is right, you will get a simple prompt with an IP :  
 ![alt tag](https://user-images.githubusercontent.com/34480775/100551564-b728b380-3281-11eb-91e7-51a4d16dbed5.JPG)  
