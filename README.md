@@ -1,4 +1,4 @@
-Rainfall is an iso challenge slightly more complex than Snow Crash. You will have to dive deep into reverse engineering, learn to reconstruct a code, and understand it to detect faults. Will you reach the last level?  
+Rainfall is an iso challenge slightly more complex than Snow Crash. You will have to dive deep into reverse engineering, learn to reconstruct a code, and understand it to detect faults. Will you reach the last level ?  
 Security challenges focused on binaries: buffer overflows, printf insertions, shellcode injections and binary analysis.
 
 ## General instructions
@@ -24,7 +24,6 @@ This ".pass" file is located at the home root of each (level0 exclu) user.
 ### Learn more
 - [Learn assembly basics](https://beta.hackndo.com/assembly-basics/)
 - [The holy grail of assembler documentation ❤](https://www.gladir.com/CODER/ASM8086/)
-- [Additional documentation on buffer overflows attacks](https://itandsecuritystuffs.wordpress.com/2014/03/18/understanding-buffer-overflows-attacks-part-1/)
 
 
 ## Architecture
