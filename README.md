@@ -43,4 +43,4 @@ For this project, I used VirtualBox in order to create the VM. You will also nee
 - **Port :** 4242
 
 
-## Rate : 125/100
+## Rate : Not Evaluated Yet
