@@ -41,6 +41,3 @@ For this project, I used VirtualBox in order to create the VM. You will also nee
 - **CPU :** 1
 - **Network access mode :** bridge
 - **Port :** 4242
-
-
-## Rate : Not Evaluated Yet
