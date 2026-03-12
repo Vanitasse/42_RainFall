@@ -88,7 +88,7 @@ login
 
 ## Executing the Exploit
 ```bash
-level8@SnowCrash:~$ ./level8
+level8@RainFall:~$ ./level8
 (level8) auth 
 (level8) service0123456789abcdef
 (level8) login
