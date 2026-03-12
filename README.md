@@ -5,7 +5,7 @@ Security challenges focused on binaries: buffer overflows, printf insertions, sh
 To make this project, you will have to use a VMV(64 bits). Once you have started your machine with the ISO provided with this subject, if your configuration is right, you will get a simple prompt with an IP :  
 ![alt tag](https://user-images.githubusercontent.com/34480775/100551564-b728b380-3281-11eb-91e7-51a4d16dbed5.JPG)  
 Then, you will be able to log-in using the following couple of login:password :  
-`level00:level00`  
+`level0:level0`  
 You really shoud use the SSH connection available on port 4242 :  
 `$> ssh level0@[VM_IP] -p 4242`  
 Once logged-in, you will have to find a way to read the ".pass" file with the "levelX" user account of the next level (X = numéro next level).  
